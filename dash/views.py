@@ -1,9 +1,13 @@
 from django.shortcuts import render
-from django.http import HttpResponse
+
 
 # Create your views here.
 def show_dashboard(request):
-    return HttpResponse("Dashboard placeholder")
+
+    return render(request, 'dash/pruebas.html')
 
 def get_dashboard_info(request):
-    return HttpResponse("Esta pagina es para subir informacion")
+    if request.method == 'POST':
+        print(request.get('ex'))
+
+    return render(request, 'dash/Upload_page.html')
