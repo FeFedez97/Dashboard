@@ -20,7 +20,7 @@ class RaspberryInfo(models.Model):
 
 
     def __str__(self):
-        return f"{self.time},{self.M1B1},{self.M1B2},{self.M1B3},\
+        return f"{self.id},{self.time},{self.M1B1},{self.M1B2},{self.M1B3},\
 {self.M2B1},{self.M2B2},{self.M2B3},\
 {self.M3B1},{self.M3B2},{self.M3B3}"
 
