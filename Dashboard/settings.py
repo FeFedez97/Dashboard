@@ -31,6 +31,7 @@ ALLOWED_HOSTS = ['FeFedez.pythonanywhere.com']
 # Application definition
 
 INSTALLED_APPS = [
+    'channels',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -70,7 +71,7 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'Dashboard.wsgi.application'
-
+ASGI_APPLICATION = "Dashboard.asgi.application"
 
 # Database
 # https://docs.djangoproject.com/en/4.0/ref/settings/#databases
