@@ -7,8 +7,10 @@ from .models import RaspberryInfo
 # Create your views here.
 def show_dashboard(request):
     data = get_object_or_404(RaspberryInfo, id = 1)
+    Machine_times = data.getmachinetimes()
     context = {
-        'data': data
+        'data': data,
+        'machine_times': Machine_times
     }
     return render(request, 'dash/pruebas.html' , context=context)
 
