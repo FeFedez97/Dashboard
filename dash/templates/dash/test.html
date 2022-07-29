@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Test</title>
+</head>
+<body>
+ <p id="test">Hello World</p>
+
+ <script>
+var socket = new WebSocket('ws://'
+            + window.location.host
+            + '/ws/test/')
+
+socket.onmessage = function(event){
+    var data = JSON.parse(event.data);
+    console.log(data);
+    document.querySelector('#test').innerText = data.message;
+}
+</script>
+
+</body>
+</html>

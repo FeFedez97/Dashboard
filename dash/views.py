@@ -15,6 +15,8 @@ def show_dashboard(request):
     return render(request, 'dash/pruebas.html' , context=context)
 
 
+
+
 @csrf_exempt
 def Upload_view(request):
 
@@ -40,3 +42,6 @@ def Upload_view(request):
         return JsonResponse(list(response), safe=False)
 
     return HttpResponse("Esta pagina solo sirve para subir info")
+
+def Test_view(request):
+    return render(request, 'dash/test.html', {})
