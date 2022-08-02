@@ -90,6 +90,14 @@ $(document).ready(function(){
             $("#M3B2").append(data.M3B2);
             $("#M3B3").empty();
             $("#M3B3").append(data.M3B3);
+            var chart_data = [data.M1B1 + data.M1B2 + data.M1B3, data.M2B1 + data.M2B2 + data.M2B3, data.M3B1 + data.M3B2 + data.M3B3]
+            for (var i=0; i < 3; i++){
+                myChart.data.datasets[0].data[i] = chart_data[i]
+            }
+
+            //console.log(myChart.data.datasets[0].data);
+            myChart.update();
+
           },
           error: (error) => {
             console.log(error);
