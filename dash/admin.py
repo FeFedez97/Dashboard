@@ -1,5 +1,7 @@
 from django.contrib import admin
-from .models import RaspberryInfo
+from .models import RunRegister,FailuresList, CategoryList
 
 # Register your models here.
-admin.site.register(RaspberryInfo)
+admin.site.register(RunRegister)
+admin.site.register(FailuresList)
+admin.site.register(CategoryList)
