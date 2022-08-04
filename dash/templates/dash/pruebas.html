@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <script src= "https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.1/chart.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
     <title>Dashboard</title>
     <style>
         li {
@@ -14,10 +15,10 @@
 Aqui deberia ir un dashboard
 <div>
 <ul>
-    <li>Time: {{ data.time }}</li>
-    <li>Machine 1: B1= {{ data.M1B1}} B2= {{ data.M1B2}} B3= {{ data.M1B3}}</li>
-    <li>Machine 2: B1= {{ data.M2B1}} B2= {{ data.M2B2}} B3= {{ data.M2B3}}</li>
-    <li>Machine 3: B1= {{ data.M3B1}} B2= {{ data.M3B2}} B3= {{ data.M3B3}}</li>
+    <li id="tiempo">Time: {{ data.time }}</li>
+    <li>Machine 1: B1= <span id = "M1B1">{{ data.M1B1}}</span> B2= <span id = "M1B2">{{ data.M1B2}}</span> B3= <span id = "M1B3">{{ data.M1B3}}</span></li>
+    <li>Machine 2: B1= <span id = "M2B1">{{ data.M2B1}}</span> B2= <span id = "M2B2">{{ data.M2B2}}</span> B3= <span id = "M2B3">{{ data.M2B3}}</span></li>
+    <li>Machine 3: B1= <span id = "M3B1">{{ data.M3B1}}</span> B2= <span id = "M3B2">{{ data.M3B2}}</span> B3= <span id = "M3B3">{{ data.M3B3}}</span></li>
 </ul>
 </div>
 
@@ -57,6 +58,53 @@ const myChart = new Chart(ctx, {
             }
         }
     }
+});
+</script>
+<script>
+$(document).ready(function(){
+
+    setInterval(function(){
+      $.ajax({
+          url: "{% url 'upload_data' %}",
+          type: "GET",
+          dataType: "json",
+          success: (data) => {
+            //console.log(data);
+            $("#tiempo").empty();
+            $("#tiempo").append("Time: " + data.time);
+            $("#M1B1").empty();
+            $("#M1B1").append(data.M1B1);
+            $("#M1B2").empty();
+            $("#M1B2").append(data.M1B2);
+            $("#M1B3").empty();
+            $("#M1B3").append(data.M1B3);
+            $("#M2B1").empty();
+            $("#M2B1").append(data.M2B1);
+            $("#M2B2").empty();
+            $("#M2B2").append(data.M2B2);
+            $("#M2B3").empty();
+            $("#M2B3").append(data.M2B3);
+            $("#M3B1").empty();
+            $("#M3B1").append(data.M3B1);
+            $("#M3B2").empty();
+            $("#M3B2").append(data.M3B2);
+            $("#M3B3").empty();
+            $("#M3B3").append(data.M3B3);
+            var chart_data = [data.M1B1 + data.M1B2 + data.M1B3, data.M2B1 + data.M2B2 + data.M2B3, data.M3B1 + data.M3B2 + data.M3B3]
+            for (var i=0; i < 3; i++){
+                myChart.data.datasets[0].data[i] = chart_data[i]
+            }
+
+            //console.log(myChart.data.datasets[0].data);
+            myChart.update();
+
+          },
+          error: (error) => {
+            console.log(error);
+          }
+      });
+    }, 1000);
+
 });
 </script>
 </body>
