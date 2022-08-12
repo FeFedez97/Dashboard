@@ -27,3 +27,6 @@ class RunRegister(models.Model):
     status = models.PositiveIntegerField(default=0)
     failure_id = models.ForeignKey(to='FailuresList', on_delete=models.DO_NOTHING)
 
+    def __str__(self):
+        return f'{self.id}) {self.status} {self.failure_id}'
+

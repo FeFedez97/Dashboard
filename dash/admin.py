@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import RunRegister,FailuresList, CategoryList
+from .models import RunRegister, FailuresList, CategoryList
 
 # Register your models here.
 admin.site.register(RunRegister)
