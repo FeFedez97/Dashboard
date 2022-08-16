@@ -3,8 +3,26 @@ from django.http import JsonResponse, HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 from .models import RunRegister, FailuresList, CategoryList
 
-from django.db.models import Count
+from django.db.models import Count, Sum
 
+
+def getValues():
+    timeline = list(RunRegister.objects.all().values_list('status', flat=True))
+    categories, categories_min = paretodata()
+    uptime = uptimedata(timeline, sum(categories_min))
+    description, description_machine, description_min, description_machine_min = piedata()
+
+    values = {
+        'categories': categories,
+        'categories_min': categories_min,
+        'description_labels': description,
+        'description_min': description_min,
+        'description_machine': description_machine_min,
+        'machine_labels': description_machine,
+        'uptime': uptime
+    }
+
+    return values
 
 def paretodata():
     query = RunRegister.objects.values('failure_id__category__name').filter(status__gt=0) \
@@ -15,24 +33,38 @@ def paretodata():
         categories.append(element['failure_id__category__name'])
         categories_min.append(element['minutes'])
     #print(categories)
+    
     return categories, categories_min
 
+def piedata():
+    query = RunRegister.objects.values('failure_id__category__name', 'failure_id__description') \
+        .filter(status__gt=0).annotate(minutes=Count('status'))
+    description = []
+    description_min = []
+    description_machine = []
+    description_machine_min = []
 
-def getuptime(timeline, total_downtime):
+    for element in query:
+
+        if not element['failure_id__category__name'] in description_machine:
+            description_machine.append(element['failure_id__category__name'])
+            description_machine_min.append(0)
+
+        description_machine_min[-1] += element['minutes']
+        description.append(element['failure_id__description'])
+        description_min.append(element['minutes'])
+
+    return description, description_machine, description_min, description_machine_min
+
+###################################################################################################################
+def uptimedata(timeline, total_downtime):
     total_time = len(timeline)
     return 100 - int((total_downtime / total_time) * 100)
 
 
 # Create your views here.
 def show_dashboard(request):
-    timeline = list(RunRegister.objects.all().values_list('status', flat=True))
-    categories, categories_min = paretodata()
-    uptime = getuptime(timeline, sum(categories_min))
-    context = {
-                'categories': categories,
-                'categories_min': categories_min,
-                'uptime': uptime
-               }
+    context = getValues()
     return render(request, 'dash/dashboard.html', context=context)
 
 
@@ -51,26 +83,7 @@ def upload_view(request):
 
     if is_ajax:
         if request.method == 'GET':
+            values = getValues()
+            return JsonResponse(values)
 
-            timeline = list(RunRegister.objects.all().values_list('status', flat=True))
-
-
-            categories, categories_min = paretodata()
-
-
-            # QUERY 2
-            query2 = RunRegister.objects.values('failure_id__category__name', 'failure_id__description') \
-                .filter(status__gt=0).annotate(minutes=Count('status'))
-            description = []
-            description_min = []
-            for element in query2:
-                description.append(element['failure_id__description'])
-                description_min.append(element['minutes'])
-
-            uptime = getuptime(timeline, sum(categories_min))
-
-            return JsonResponse({'categories': categories, 'categories_min': categories_min, 'description': description,
-                                 'description_min': description_min, 'uptime': uptime})
         return JsonResponse({'status': 'Invalid request'}, status=400)
-
-    return HttpResponse("hola")

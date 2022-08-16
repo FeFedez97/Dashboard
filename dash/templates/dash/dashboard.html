@@ -18,7 +18,12 @@
 <script>
     const paretodata = {{ categories_min }};
     const paretolabels = {{ categories|safe }};
-    const uptime = {{ uptime }}
+    const uptime = {{ uptime }};
+    const labels1 = {{ machine_labels|safe }};
+    const labels2 = {{ description_labels|safe }}
+    const pielvl2 = {{ description_min }};
+    const pielvl1 = {{ description_machine }};
+
     const ajaxurl = "{% url 'upload_data' %}";
 </script>
 
