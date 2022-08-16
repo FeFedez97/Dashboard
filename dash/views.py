@@ -8,17 +8,13 @@ from django.db.models import Count, Sum
 
 def getValues():
     timeline = list(RunRegister.objects.all().values_list('status', flat=True))
-    categories, categories_min = paretodata()
-    uptime = uptimedata(timeline, sum(categories_min))
-    description, description_machine, description_min, description_machine_min = piedata()
+    pareto = paretodata()
+    uptime = uptimedata(timeline, sum(pareto['minutes']))
+    pie = piedata()
 
     values = {
-        'categories': categories,
-        'categories_min': categories_min,
-        'description_labels': description,
-        'description_min': description_min,
-        'description_machine': description_machine_min,
-        'machine_labels': description_machine,
+        'pareto': pareto,
+        'pie': pie,
         'uptime': uptime
     }
 
@@ -32,29 +28,53 @@ def paretodata():
     for element in query:
         categories.append(element['failure_id__category__name'])
         categories_min.append(element['minutes'])
-    #print(categories)
-    
-    return categories, categories_min
+
+    data = {
+        'labels': categories,
+        'minutes': categories_min,
+    }
+    return data
 
 def piedata():
+
+    colors = ['#e6194B', '#3cb44b', '#e6c700', '#4363d8', '#f58231', '#911eb4', '#42d4f4', '#f032e6', '#bfef45',
+              '#fabed4', '#469990', '#dcbeff', '#9A6324', '#fffac8', '#800000', '#aaffc3', '#808000', '#ffd8b1',
+              '#000075']
+
     query = RunRegister.objects.values('failure_id__category__name', 'failure_id__description') \
         .filter(status__gt=0).annotate(minutes=Count('status'))
     description = []
     description_min = []
-    description_machine = []
-    description_machine_min = []
+    machine = []
+    machine_min = []
+    failure_colors = []
+    machine_colors = []
 
     for element in query:
 
-        if not element['failure_id__category__name'] in description_machine:
-            description_machine.append(element['failure_id__category__name'])
-            description_machine_min.append(0)
+        if not element['failure_id__category__name'] in machine:
+            machine.append(element['failure_id__category__name'])
+            machine_min.append(0)
+            i = len(machine_colors)
+            if i <= len(colors[i]):
+                machine_colors.append(colors[i])
 
-        description_machine_min[-1] += element['minutes']
+        if len(machine_colors) <= len(colors):
+            failure_colors.append(machine_colors[-1])
+        machine_min[-1] += element['minutes']
         description.append(element['failure_id__description'])
         description_min.append(element['minutes'])
 
-    return description, description_machine, description_min, description_machine_min
+    data = {
+        'machines_labels': machine,
+        'machines_times': machine_min,
+        'machines_colors': machine_colors,
+        'failures_labels': description,
+        'failures_times': description_min,
+        'failures_colors': failure_colors
+    }
+
+    return data
 
 ###################################################################################################################
 def uptimedata(timeline, total_downtime):
@@ -83,7 +103,6 @@ def upload_view(request):
 
     if is_ajax:
         if request.method == 'GET':
-            values = getValues()
-            return JsonResponse(values)
+            return JsonResponse(getValues())
 
         return JsonResponse({'status': 'Invalid request'}, status=400)

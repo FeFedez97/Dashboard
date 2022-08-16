@@ -7,17 +7,26 @@ $(document).ready(function(){
           dataType: "json",
           success: (response_data) => {
             //console.log(response_data);
-            paretoChart.data.labels = response_data.categories;
-            paretoChart.data.datasets[0].data = response_data.categories_min;
+
+            //update pareto
+            paretoChart.data.labels = response_data.pareto.labels;
+            paretoChart.data.datasets[0].data = response_data.pareto.minutes;
             paretoChart.update();
-            pieChart.data.labels = response_data.description;
-            pieChart.data.datasets[0].data = response_data.description_min;
-            pieChart.data.datasets[0].label = response_data.description;
+
+            //update pie chart
+            pieChart.data.datasets[0].data = response_data.pie.failures_times;
+            pieChart.data.datasets[0].labels = response_data.pie.failures_labels;
+            pieChart.data.datasets[0].backgroundColor = response_data.pie.failures_colors;
+            pieChart.data.datasets[1].data = response_data.pie.machines_times;
+            pieChart.data.datasets[1].labels = response_data.pie.machines_labels;
+            pieChart.data.datasets[1].backgroundColor = response_data.pie.machines_colors;
             pieChart.update();
+
+            //update availability
             availabilityChart.data.datasets[0].data = [response_data.uptime, 100-response_data.uptime];
-            availabilityChart.options.subtitle.text = String(response_data.uptime) + '%'
+            availabilityChart.options.plugins.subtitle.text = String(response_data.uptime) + '%'
             availabilityChart.update();
-           },
+          },
           error: (error) => {
             console.log(error);
           }

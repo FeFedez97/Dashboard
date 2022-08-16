@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <script src= "https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.1/chart.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.1.0"></script>
     <title>Dashboard</title>
     <link rel="stylesheet" href="{% static 'dash/css/style.css' %}">
 </head>
@@ -16,13 +17,15 @@
 <canvas id="availabilityChart" width="80" height="80"></canvas>
 
 <script>
-    const paretodata = {{ categories_min }};
-    const paretolabels = {{ categories|safe }};
+    const paretodata = {{ pareto.minutes }};
+    const paretolabels = {{ pareto.labels|safe }};
     const uptime = {{ uptime }};
-    const labels1 = {{ machine_labels|safe }};
-    const labels2 = {{ description_labels|safe }}
-    const pielvl2 = {{ description_min }};
-    const pielvl1 = {{ description_machine }};
+    const labels1 = {{ pie.machines_labels|safe }};
+    const labels2 = {{ pie.failures_labels|safe }};
+    const pielvl2 = {{ pie.failures_times }};
+    const pielvl1 = {{ pie.machines_times }};
+    const piecolors1 = {{ pie.machines_colors|safe }};
+    const piecolors2 = {{ pie.failures_colors|safe }};
 
     const ajaxurl = "{% url 'upload_data' %}";
 </script>
@@ -30,6 +33,6 @@
 <script src="{% static 'dash/js/paretoChart.js' %}"></script>
 <script src="{% static 'dash/js/pieChart.js' %}"></script>
 <script src="{% static 'dash/js/availabilityChart.js' %}"></script>
-<!--<script src="{% static 'dash/js/update.js' %}"></script>-->
+<script src="{% static 'dash/js/update.js' %}"></script>
 </body>
 </html>
