@@ -6,17 +6,15 @@ const availabilityChart = new Chart(ctx3, {
         labels: ['Uptime','Downtime'],
         datasets: [{
             label: 'data',
-            data: [uptime, 100-uptime],
-            backgroundColor: [
-              '#0099FF',
-              '#D9D9D9',
-            ]
+            data: uptimedata,
+            backgroundColor: uptimecolor
         }]
     },
     options: {
         circumference: 180,
         rotation: 270,
         aspectRatio: 1,
+        events: [],
         plugins: {
             legend: {
                 display: false
@@ -35,7 +33,7 @@ const availabilityChart = new Chart(ctx3, {
             },
             subtitle: {
                 display: true,
-                text: String(uptime) + '%',
+                text: String(uptimelabel)+'%',
                 align: 'center',
                 position: 'bottom',
                 padding: {

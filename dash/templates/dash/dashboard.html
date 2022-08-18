@@ -10,8 +10,12 @@
     <link rel="stylesheet" href="{% static 'dash/css/style.css' %}">
 </head>
 <body>
-<h1>IDP Dashboard</h1>
 
+<header>
+    <h1>IDP Dashboard</h1>
+    <a href="{% url 'reset' %}">Reset</a>
+</header>
+<canvas id="timelineChart" width="80" height="80"></canvas>
 <canvas id="paretoChart" width="80" height="80"></canvas>
 <canvas id="pieChart" width="80" height="80"></canvas>
 <canvas id="availabilityChart" width="80" height="80"></canvas>
@@ -19,7 +23,9 @@
 <script>
     const paretodata = {{ pareto.minutes }};
     const paretolabels = {{ pareto.labels|safe }};
-    const uptime = {{ uptime }};
+    const uptimedata = {{ uptime.nums }};
+    const uptimelabel = {{ uptime.uptime }};
+    const uptimecolor = {{ uptime.color|safe }}
     const labels1 = {{ pie.machines_labels|safe }};
     const labels2 = {{ pie.failures_labels|safe }};
     const pielvl2 = {{ pie.failures_times }};
@@ -30,6 +36,7 @@
     const ajaxurl = "{% url 'upload_data' %}";
 </script>
 
+<script src="{% static 'dash/js/timelineChart.js' %}"></script>
 <script src="{% static 'dash/js/paretoChart.js' %}"></script>
 <script src="{% static 'dash/js/pieChart.js' %}"></script>
 <script src="{% static 'dash/js/availabilityChart.js' %}"></script>

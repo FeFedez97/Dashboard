@@ -6,7 +6,7 @@ $(document).ready(function(){
           type: "GET",
           dataType: "json",
           success: (response_data) => {
-            //console.log(response_data);
+            console.log(response_data);
 
             //update pareto
             paretoChart.data.labels = response_data.pareto.labels;
@@ -23,8 +23,9 @@ $(document).ready(function(){
             pieChart.update();
 
             //update availability
-            availabilityChart.data.datasets[0].data = [response_data.uptime, 100-response_data.uptime];
-            availabilityChart.options.plugins.subtitle.text = String(response_data.uptime) + '%'
+            availabilityChart.data.datasets[0].data = response_data.uptime.nums;
+            availabilityChart.data.datasets[0].backgroundColor = response_data.uptime.colors;
+            availabilityChart.options.plugins.subtitle.text = String(response_data.uptime.uptime) + '%';
             availabilityChart.update();
           },
           error: (error) => {
