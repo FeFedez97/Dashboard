@@ -8,6 +8,12 @@ $(document).ready(function(){
           success: (response_data) => {
             console.log(response_data);
 
+            //update timeline
+            timelineChart.data.labels = response_data.timeline.labels;
+            timelineChart.data.datasets[0].data = response_data.timeline.timelines[0];
+            timelineChart.data.datasets[1].data = response_data.timeline.timelines[1];
+            timelineChart.update();
+
             //update pareto
             paretoChart.data.labels = response_data.pareto.labels;
             paretoChart.data.datasets[0].data = response_data.pareto.minutes;
