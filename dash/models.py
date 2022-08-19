@@ -34,5 +34,5 @@ class RunRegister(models.Model):
     bottle_rejections = models.PositiveIntegerField(default=0)
 
     def __str__(self):
-        return f'{self.id}) s:{self.status}, d:{self.duration}, {self.failure_id}'
+        return f'{self.id})\t {self.time_stamp.ctime()},\t status: {self.status},\t duration: {self.duration},\t f_id: {self.failure_id}'
 

@@ -7,9 +7,16 @@ from django.utils import timezone
 from django.shortcuts import render, get_object_or_404, redirect
 from django.http import JsonResponse, HttpResponse
 from django.views.decorators.csrf import csrf_exempt
+from django.db.models import Count, Sum, Max
+
 from .models import RunRegister, FailuresList, CategoryList
 
-from django.db.models import Count, Sum
+from math import ceil, floor
+
+
+def dateconvertion(dt):
+    tz = pytz.timezone(str(timezone.get_current_timezone()))
+    return dt.astimezone(tz=tz)
 
 
 def resestdb():
@@ -20,6 +27,7 @@ def resestdb():
     newRegister = RunRegister(time_stamp=timestamp, failure_id=failure, line_speed=linespeed, bottle_count=0,
                               bottle_rejections=0)
     newRegister.save()
+
 
 def colormap(level):
 
@@ -37,9 +45,10 @@ def colormap(level):
     color = f'rgb({r},{g},{b})'
     return [color, '#D9D9D9']
 
+
 def getValues():
-    timeline = list(RunRegister.objects.all().values_list('status', flat=True))
-    linechart = gettimelinechart(timeline)
+  #  timeline = list(RunRegister.objects.all().values_list('status', flat=True))
+    linechart = gettimelinechart()
     pareto = paretodata()
     uptime = uptimedata(sum(pareto['minutes']))
     pie = piedata()
@@ -54,16 +63,83 @@ def getValues():
     return values
 
 
-def gettimelinechart(timeline):
-    num_of_categories = max(timeline) + 1
-    lenght = len(timeline)
-    timelines = np.zeros((num_of_categories, lenght), dtype=int)
-    for count, state in enumerate(timeline):
-        timelines[state][count] = 1
+def gettimelinechart():
+    timeformat = "%H:%M"
+    maxbars = 360
+
+    first_register = RunRegister.objects.first()
+    last_register = RunRegister.objects.last()
+
+    start_time = dateconvertion(first_register.time_stamp)
+    end_time = dateconvertion(last_register.time_stamp)
+
+    if start_time == end_time:
+        data = {
+            'timelines': [],
+            'labels': []
+        }
+
+        return data
+
+    dif = end_time-start_time
+
+    minutes = int(ceil(dif.total_seconds()/60))
+
+    step = int(ceil(minutes/maxbars))
+
+    labels = []
+
+    for i in range(0, minutes, step):
+        dt = datetime.timedelta(minutes=i)
+        temp = start_time + dt
+        labels.append(temp.strftime(timeformat))
+
+    query = list(RunRegister.objects.values('status', 'duration'))
+    query2 = RunRegister.objects.aggregate(Max('status'))
+    num_of_cate = query2['status__max'] + 1
+    limit = len(query)
+
+    timelines = np.zeros((num_of_cate, len(labels)))
+
+    current = 0
+    remaining_time = query[current]['duration']
+
+    selector = np.zeros(num_of_cate, dtype=float)
+
+    for i in range(len(labels)):
+
+        if int(floor(remaining_time)) < step:
+            selector[:] = 0
+            selector[query[current]['status']] += remaining_time
+            while int(floor(np.sum(selector))+0.0001) < step:
+                if current + 1 >= limit:
+                    break
+                current += 1
+                if int(floor(selector.sum() + query[current]['duration'])) < step:
+                    selector[query[current]['status']] += query[current]['duration']
+                else:
+                    residue = round(step - selector.sum(), 2)
+                    selector[query[current]['status']] += residue
+                    remaining_time = round(query[current]['duration'] - residue, 2)
+                    break
+            if current == limit:
+                cat = query[current-1]['status']
+            else:
+                cat = selector.argmax()
+
+        else:
+            cat = query[current]['status']
+            remaining_time -= step
+
+        timelines[cat][i] = 1
+
+
 
     data = {
-        'timelines': timelines.tolist()
+        'timelines': timelines.tolist(),
+        'labels': labels
     }
+
 
     return data
 
@@ -125,15 +201,17 @@ def piedata():
     return data
 
 
-def dateconvertion(dt):
-    tz = pytz.timezone(str(timezone.get_current_timezone()))
-    return dt.astimezone(tz=tz)
-
-
-
 def uptimedata(totaldowntime):
     registers = list(RunRegister.objects.all().values_list('duration', flat=True))
     total = sum(registers)
+    if total == 0:
+        data = {
+            'nums': [],
+            'uptime': [],
+            'color': []
+        }
+        return data
+
     downtime = round(totaldowntime/total, 2)
     uptime = round(1-downtime, 2)
     intuptime = int(uptime*100)
