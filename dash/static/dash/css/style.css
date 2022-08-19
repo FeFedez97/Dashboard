@@ -3,18 +3,10 @@ body{
 ;
 }
 
-canvas{
-    background-color: #f8f9fa;
-    padding: 6px;
-    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
-    height: 100%;
-    margin: 25px;
-}
-
 h1{
-    color: 343a40;
+    color: #343A40;
 }
 
 p{
-  color: white;
+  color: blue;
 }

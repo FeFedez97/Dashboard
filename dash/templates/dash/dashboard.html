@@ -9,7 +9,9 @@
     <title>Dashboard</title>
     <link rel="stylesheet" type="text/css" href="{% static 'dash/css/style.css' %}">
     <link rel="stylesheet" type="text/css" href="{% static 'dash/css/timeline.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'dash/css/dashboardlayout.css' %}">
 </head>
+
 <body>
 
 <header>
@@ -18,19 +20,40 @@
 </header>
 
 
+<div class="wrapper-dashboard">
+    <div class="timeline">
+        <canvas id="timelineChart"></canvas>
+    </div>
 
-<div class="timeline">
-    <canvas id="timelineChart"></canvas>
+    <div class="availability">
+        <canvas id="availabilityChart"></canvas>
+    </div>
+
+    <div class="performance">
+        <canvas id="performanceChart"></canvas>
+    </div>
+
+    <div class="quality">
+        <canvas id="qualityChart"></canvas>
+    </div>
+
+    <div class="oee">
+        <canvas id="oeeChart"></canvas>
+    </div>
+
+
+    <div class="pareto">
+        <canvas id="paretoChart"></canvas>
+    </div>
+
+    <div class="failures">
+        <canvas id="pieChart"></canvas>
+    </div>
+
+
 </div>
 
-<div></div>
-<canvas id="paretoChart"></canvas>
-<canvas id="pieChart"></canvas>
-<canvas id="availabilityChart"></canvas>
-
 <script>
-
-
 
     const timelinelabels = {{ timeline.labels|safe }};
     var timelines = [];
@@ -40,9 +63,23 @@
 
     const paretodata = {{ pareto.minutes }};
     const paretolabels = {{ pareto.labels|safe }};
+
     const uptimedata = {{ uptime.nums }};
     const uptimelabel = {{ uptime.uptime }};
-    const uptimecolor = {{ uptime.color|safe }}
+    const uptimecolor = {{ uptime.color|safe }};
+
+    const performancedata = {{ performance.nums }};
+    const performancelabel = {{ performance.performance }};
+    const performancecolor = {{ performance.color|safe }};
+
+    const qualitydata = {{ quality.nums }};
+    const qualitylabel = {{ quality.quality }};
+    const qualitycolor = {{ quality.color|safe }};
+
+    const oeedata = {{ oee.nums }};
+    const oeelabel = {{ oee.oee }};
+    const oeecolor = {{ oee.color|safe }};
+
     const labels1 = {{ pie.machines_labels|safe }};
     const labels2 = {{ pie.failures_labels|safe }};
     const pielvl2 = {{ pie.failures_times }};
@@ -54,9 +91,13 @@
 </script>
 
 <script src="{% static 'dash/js/timelineChart.js' %}"></script>
+<script src="{% static 'dash/js/availabilityChart.js' %}"></script>
+<script src="{% static 'dash/js/performanceChart.js' %}"></script>
+<script src="{% static 'dash/js/qualityChart.js' %}"></script>
+<script src="{% static 'dash/js/oeeChart.js' %}"></script>
 <script src="{% static 'dash/js/paretoChart.js' %}"></script>
 <script src="{% static 'dash/js/pieChart.js' %}"></script>
-<script src="{% static 'dash/js/availabilityChart.js' %}"></script>
-<script src="{% static 'dash/js/update.js' %}"></script>
+
+ <script src="{% static 'dash/js/update.js' %}"></script>
 </body>
 </html>

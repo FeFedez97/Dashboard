@@ -34,7 +34,9 @@ const timelineChart = new Chart(ctx4, {
                 ticks: {
                     align: 'end',
                     maxRotation: 90,
-                    minRotation: 90
+                    minRotation: 0,
+                    size: 8,
+                    weight: 'bold'
                 }
             },
             y: {

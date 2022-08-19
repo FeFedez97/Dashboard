@@ -25,6 +25,7 @@ const pieChart = new Chart(ctx2, {
         }]
     },
     options:{
+        maintainAspectRatio: false,
         plugins:{
             legend:{
                 display: false

@@ -33,6 +33,25 @@ $(document).ready(function(){
             availabilityChart.data.datasets[0].backgroundColor = response_data.uptime.colors;
             availabilityChart.options.plugins.subtitle.text = String(response_data.uptime.uptime) + '%';
             availabilityChart.update();
+
+            //update performance
+            performanceChart.data.datasets[0].data = response_data.performance.nums;
+            performanceChart.data.datasets[0].backgroundColor = response_data.performance.colors;
+            performanceChart.options.plugins.subtitle.text = String(response_data.performance.performance) + '%';
+            performanceChart.update();
+
+            //update quality
+            qualityChart.data.datasets[0].data = response_data.quality.nums;
+            qualityChart.data.datasets[0].backgroundColor = response_data.quality.colors;
+            qualityChart.options.plugins.subtitle.text = String(response_data.quality.quality) + '%';
+            qualityChart.update();
+
+            //update oee
+            oeeChart.data.datasets[0].data = response_data.oee.nums;
+            oeeChart.data.datasets[0].backgroundColor = response_data.oee.colors;
+            oeeChart.options.plugins.subtitle.text = String(response_data.oee.oee) + '%';
+            oeeChart.update();
+
           },
           error: (error) => {
             console.log(error);

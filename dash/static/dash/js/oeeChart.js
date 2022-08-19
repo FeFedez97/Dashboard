@@ -1,13 +1,13 @@
 //console.log('hi');
-const ctx3 = document.getElementById('availabilityChart').getContext('2d');
-const availabilityChart = new Chart(ctx3, {
+const ctx7 = document.getElementById('oeeChart').getContext('2d');
+const oeeChart = new Chart(ctx7, {
     type: 'doughnut',
     data: {
         labels: ['Uptime','Downtime'],
         datasets: [{
             label: 'data',
-            data: uptimedata,
-            backgroundColor: uptimecolor
+            data: oeedata,
+            backgroundColor: oeecolor
         }]
     },
     options: {
@@ -23,7 +23,7 @@ const availabilityChart = new Chart(ctx3, {
             },
             title: {
                 display: true,
-                text: 'Availability',
+                text: 'OEE',
                 align: 'center',
                 padding: {
                     top: 2,
@@ -35,7 +35,7 @@ const availabilityChart = new Chart(ctx3, {
             },
             subtitle: {
                 display: true,
-                text: String(uptimelabel)+'%',
+                text: String(oeelabel)+'%',
                 align: 'center',
                 position: 'bottom',
                 padding: {

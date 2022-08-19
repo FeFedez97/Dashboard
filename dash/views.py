@@ -47,16 +47,22 @@ def colormap(level):
 
 
 def getValues():
-  #  timeline = list(RunRegister.objects.all().values_list('status', flat=True))
     linechart = gettimelinechart()
     pareto = paretodata()
     uptime = uptimedata(sum(pareto['minutes']))
     pie = piedata()
+    performance = performancedata(uptime['nums'][0])
+    quality = qualitydata(performance['nums'][0])
+    oee = oeedata(uptime['nums'][0], performance['nums'][0], uptime['nums'][0])
+
 
     values = {
         'pareto': pareto,
         'pie': pie,
         'uptime': uptime,
+        'performance': performance,
+        'quality': quality,
+        'oee': oee,
         'timeline': linechart
     }
 
@@ -222,6 +228,58 @@ def uptimedata(totaldowntime):
         'color': color
     }
     return data
+
+def performancedata(uptime):
+
+    from random import randint
+    numero_rando = randint(25, 90)/100
+    perfomance = numero_rando*uptime
+    loss = 1-perfomance
+    intperformance = int(perfomance*100)
+    color = colormap(intperformance)
+
+
+    data = {
+        'nums': [perfomance, loss],
+        'performance': [intperformance],
+        'color': color
+    }
+
+    return data
+
+
+def qualitydata(performance):
+    from random import randint
+    numero_rando = randint(80, 99) / 100
+    quality = numero_rando * performance
+    loss = 1 - quality
+    intquality = int(quality * 100)
+    color = colormap(intquality)
+
+    data = {
+        'nums': [quality, loss],
+        'quality': [intquality],
+        'color': color
+    }
+
+    return data
+
+def oeedata(a,p,q):
+
+    oee = a*p*q
+    loss = 1-oee
+    intoee = int(oee*100)
+    color = colormap(intoee)
+
+    data = {
+        'nums': [oee, loss],
+        'oee': intoee,
+        'color': color
+    }
+
+    return data
+
+
 
 ###################################################################################################################
 # Create your views here.

@@ -1,0 +1,35 @@
+.wrapper-dashboard{
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    grid-template-rows: 120px 200px auto;
+    grid-gap: 20px;
+}
+
+canvas{
+    background-color: #f8f9fa;
+    padding: 6px;
+}
+
+.wrapper-dashboard div{
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+}
+
+.timeline {
+    grid-column: 1 / 5;
+    width: 100%;
+    height: 100%;
+}
+
+.availability{
+    width: 100%;
+    height: 100%;
+}
+
+.pareto{
+    grid-column: 1 / 3;
+}
+
+.failures{
+    grid-column: 3 / 5;
+}
+

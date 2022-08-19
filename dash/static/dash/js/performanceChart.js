@@ -1,13 +1,13 @@
 //console.log('hi');
-const ctx3 = document.getElementById('availabilityChart').getContext('2d');
-const availabilityChart = new Chart(ctx3, {
+const ctx5 = document.getElementById('performanceChart').getContext('2d');
+const performanceChart = new Chart(ctx5, {
     type: 'doughnut',
     data: {
         labels: ['Uptime','Downtime'],
         datasets: [{
             label: 'data',
-            data: uptimedata,
-            backgroundColor: uptimecolor
+            data: performancedata,
+            backgroundColor: performancecolor
         }]
     },
     options: {
@@ -23,7 +23,7 @@ const availabilityChart = new Chart(ctx3, {
             },
             title: {
                 display: true,
-                text: 'Availability',
+                text: 'Performance',
                 align: 'center',
                 padding: {
                     top: 2,
@@ -35,7 +35,7 @@ const availabilityChart = new Chart(ctx3, {
             },
             subtitle: {
                 display: true,
-                text: String(uptimelabel)+'%',
+                text: String(performancelabel)+'%',
                 align: 'center',
                 position: 'bottom',
                 padding: {
