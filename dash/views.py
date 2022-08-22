@@ -7,7 +7,7 @@ from django.utils import timezone
 from django.shortcuts import render, get_object_or_404, redirect
 from django.http import JsonResponse, HttpResponse
 from django.views.decorators.csrf import csrf_exempt
-from django.db.models import Count, Sum, Max
+from django.db.models import Count, Sum, Max, F
 
 from .models import RunRegister, FailuresList, CategoryList
 
@@ -31,7 +31,7 @@ def resestdb():
 
 def colormap(level):
 
-    max = 225
+    max = 200
     step = int(max/50)
 
     if level <= 50:
@@ -51,10 +51,9 @@ def getValues():
     pareto = paretodata()
     uptime = uptimedata(sum(pareto['minutes']))
     pie = piedata()
-    performance = performancedata(uptime['nums'][0])
-    quality = qualitydata(performance['nums'][0])
-    oee = oeedata(uptime['nums'][0], performance['nums'][0], uptime['nums'][0])
-
+    performance = performancedata()
+    quality = qualitydata(performance['total_production'])
+    oee = oeedata(uptime['nums'][0], performance['nums'][0], quality['nums'][0])
 
     values = {
         'pareto': pareto,
@@ -211,47 +210,75 @@ def uptimedata(totaldowntime):
     registers = list(RunRegister.objects.all().values_list('duration', flat=True))
     total = sum(registers)
     if total == 0:
-        data = {
-            'nums': [],
-            'uptime': [],
-            'color': []
-        }
-        return data
+        downtime = 0
+    else:
+        downtime = round(totaldowntime / total, 2)
 
-    downtime = round(totaldowntime/total, 2)
     uptime = round(1-downtime, 2)
     intuptime = int(uptime*100)
     color = colormap(intuptime)
     data = {
         'nums': [uptime, downtime],
         'uptime': intuptime,
-        'color': color
+        'colors': color
     }
     return data
 
-def performancedata(uptime):
+def performancedata():
 
-    from random import randint
-    numero_rando = randint(25, 90)/100
-    perfomance = numero_rando*uptime
-    loss = 1-perfomance
-    intperformance = int(perfomance*100)
+    query = RunRegister.objects.filter(status = 0, duration__gt = 0.1)\
+        .values('line_speed', 'bottle_count', 'bottle_rejections', 'duration')
+    registers = list(query)
+
+    if len(registers) == 0:
+        performance = 1.0
+        production = np.empty(1)
+    else:
+        times = np.zeros(len(registers), dtype=float)
+        production = np.zeros(len(registers), dtype=int)
+        speeds = np.zeros_like(production)
+
+        for i, register in enumerate(registers):
+            times[i] = register['duration']
+            production[i] = register['bottle_count'] + register['bottle_rejections']
+            speeds[i] = register['line_speed']
+
+        total_time = times.sum()
+        ponderation = times / total_time
+        speeds = speeds * ponderation
+        avg_speed = sum(speeds)
+
+        planned = total_time * avg_speed
+        actual = production.sum()
+
+        performance = round(actual / planned, 2)
+
+    intperformance = int(performance*100)
     color = colormap(intperformance)
 
+    if performance > 1.0:
+        performance = 1.0
 
+    loss = 1.0-performance
     data = {
-        'nums': [perfomance, loss],
+        'nums': [performance, loss],
         'performance': [intperformance],
-        'color': color
+        'colors': color,
+        'total_production': int(production.sum())
     }
 
     return data
 
 
-def qualitydata(performance):
-    from random import randint
-    numero_rando = randint(80, 99) / 100
-    quality = numero_rando * performance
+def qualitydata(total_production):
+    query = RunRegister.objects.filter(status = 0).aggregate(Sum('bottle_rejections'))
+    rejected_bottles = query['bottle_rejections__sum']
+
+    if total_production == 0:
+        quality = 1.0
+    else:
+        quality = round((total_production-rejected_bottles)/total_production, 2)
+
     loss = 1 - quality
     intquality = int(quality * 100)
     color = colormap(intquality)
@@ -259,13 +286,12 @@ def qualitydata(performance):
     data = {
         'nums': [quality, loss],
         'quality': [intquality],
-        'color': color
+        'colors': color
     }
 
     return data
 
 def oeedata(a,p,q):
-
     oee = a*p*q
     loss = 1-oee
     intoee = int(oee*100)
@@ -274,7 +300,7 @@ def oeedata(a,p,q):
     data = {
         'nums': [oee, loss],
         'oee': intoee,
-        'color': color
+        'colors': color
     }
 
     return data
@@ -299,6 +325,8 @@ def upload_view(request):
         timedif = currenttime - lastregister_time
         duration = round(timedif.total_seconds() / 60, 2)
         lastregister.duration = duration
+        lastregister.bottle_count = request.POST.get("bottle_count")
+        lastregister.bottle_rejections = request.POST.get("bottle_rejections")
         lastregister.save()
 
         failure = FailuresList.objects.get(id=request.POST.get("failure_id"))
@@ -310,8 +338,8 @@ def upload_view(request):
                 failure_id=failure,
                 duration=0.0,
                 line_speed=request.POST.get("line_speed"),
-                bottle_count=request.POST.get("bottle_count"),
-                bottle_rejections=request.POST.get("bottle_rejections")
+                bottle_count=0,
+                bottle_rejections=0
             )
         newregister.save()
 
